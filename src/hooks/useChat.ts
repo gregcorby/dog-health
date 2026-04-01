@@ -5,7 +5,7 @@ import { useLocalStorage } from "./useLocalStorage";
 
 export function useChat() {
   const [messages, setMessages] = useLocalStorage<Message[]>(
-    "cali-chat-history",
+    "pet-chat-history",
     [],
   );
   const [streaming, setStreaming] = useState(false);

@@ -1,7 +1,7 @@
 {
   "name": "dog-health",
   "version": "1.0.0",
-  "description": "Cali's Health Center — veterinary AI assistant",
+  "description": "Pet Health Center — veterinary AI assistant",
   "type": "module",
   "scripts": {
     "dev": "vite",

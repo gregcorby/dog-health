@@ -23,7 +23,7 @@ export default function App() {
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-base font-bold text-[#2C1810] tracking-tight">
-              Cali's Health Center
+              Pet Health Center
             </h1>
             <p className="text-[11px] text-[#8B7355] font-medium">
               14y F/S Mixed · 14.8 kg · Modern Animal NoPa

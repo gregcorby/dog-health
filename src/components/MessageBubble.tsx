@@ -21,7 +21,7 @@ export function MessageBubble({ message, isStreaming }: Props) {
       >
         {!isUser && (
           <div className="text-[10px] font-bold tracking-wider text-[#8B7355] mb-1.5 font-sans uppercase">
-            Cali's Health AI
+            Health AI
             {isStreaming && (
               <span className="ml-2 inline-block w-1.5 h-1.5 bg-[#8B7355] rounded-full animate-pulse" />
             )}

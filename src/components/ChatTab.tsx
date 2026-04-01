@@ -41,7 +41,7 @@ export function ChatTab({ chat }: Props) {
                 Medical Records & AI Analysis
               </h2>
               <p className="text-xs text-[#8B7355] max-w-sm mx-auto leading-relaxed">
-                Full history loaded. Ask anything about Cali's condition,
+                Full history loaded. Ask anything about conditions,
                 medications, labs, or next steps.
               </p>
             </div>
@@ -100,7 +100,7 @@ export function ChatTab({ chat }: Props) {
               onKeyDown={(e) =>
                 e.key === "Enter" && handleSend(input)
               }
-              placeholder="Ask about Cali's health..."
+              placeholder="Ask about health records..."
               disabled={streaming}
               className="flex-1 border-none outline-none text-sm font-sans bg-transparent text-[#2C1810] placeholder:text-[#A0937E] disabled:opacity-50"
             />

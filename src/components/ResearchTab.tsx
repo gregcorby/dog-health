@@ -43,7 +43,7 @@ const SUGGESTED_SEARCHES = [
 
 export function ResearchTab() {
   const [results, setResults] = useLocalStorage<ResearchResult[]>(
-    "cali-research",
+    "pet-research",
     [],
   );
   const [activeCategory, setActiveCategory] = useState<CategoryId>("all");
@@ -154,7 +154,7 @@ export function ResearchTab() {
             onKeyDown={(e) =>
               e.key === "Enter" && handleCustomSearch(customQuery)
             }
-            placeholder="Search anything about Cali's condition..."
+            placeholder="Search veterinary topics..."
             disabled={loading}
             className="flex-1 border-none outline-none text-sm font-sans bg-transparent text-[#2C1810] placeholder:text-[#A0937E] disabled:opacity-50"
           />

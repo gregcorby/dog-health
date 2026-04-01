@@ -84,7 +84,7 @@ YOUR JOB: Search Reddit (especially r/dogs, r/AskVet, r/DogCare, r/oldmandog), v
 For each finding provide:
 - Source (subreddit, forum, publication)
 - Brief summary of what was found
-- Why it's relevant to Cali
+- Why it's relevant to this patient
 - Actionable takeaway
 
 Skip generic vet advice. Prioritize recent posts (2024-2026), owner experiences, and new research. Be thorough.`;

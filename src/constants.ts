@@ -83,20 +83,20 @@ YOUR JOB: Search Reddit (especially r/dogs, r/AskVet, r/DogCare, r/oldmandog), v
 For each finding provide:
 - Source (subreddit, forum, publication)
 - Brief summary of what was found
-- Why it's relevant to Cali
+- Why it's relevant to this patient
 - Actionable takeaway
 
 Skip generic vet advice. Prioritize recent posts (2024-2026), owner experiences, and new research. Be thorough.`;
 
 export const SUGGESTED_QUERIES: SuggestedQuery[] = [
-  { icon: "📋", label: "Full Medical Timeline", query: "Give me a complete chronological timeline of Cali's medical history, including every visit, test, result, and recommendation." },
-  { icon: "⚠️", label: "Overdue Tests & Vaccines", query: "What vaccines, tests, or screenings is Cali currently overdue for? Include everything that was recommended but never completed." },
-  { icon: "💊", label: "Medications Review", query: "Review all of Cali's current medications — are the doses appropriate? Any interactions? What's missing that should be added?" },
+  { icon: "📋", label: "Full Medical Timeline", query: "Give me a complete chronological timeline of the patient's medical history, including every visit, test, result, and recommendation." },
+  { icon: "⚠️", label: "Overdue Tests & Vaccines", query: "What vaccines, tests, or screenings are currently overdue? Include everything that was recommended but never completed." },
+  { icon: "💊", label: "Medications Review", query: "Review all current medications — are the doses appropriate? Any interactions? What's missing that should be added?" },
   { icon: "🔍", label: "Gaps in Care", query: "What tests have been recommended but never run? What has been overlooked or dropped? Be specific." },
-  { icon: "🧠", label: "HE Assessment", query: "Based on Cali's symptoms and liver disease, walk me through the case for hepatic encephalopathy. What tests confirm it and what's the treatment?" },
-  { icon: "❓", label: "Questions for Vet", query: "Generate a prioritized list of specific questions I should bring to Cali's next vet appointment." },
+  { icon: "🧠", label: "HE Assessment", query: "Based on the symptoms and liver disease, walk me through the case for hepatic encephalopathy. What tests confirm it and what's the treatment?" },
+  { icon: "❓", label: "Questions for Vet", query: "Generate a prioritized list of specific questions I should bring to the next vet appointment." },
   { icon: "📊", label: "Ultrasound Breakdown", query: "Break down the ultrasound findings in detail. What does each finding mean and what are the implications?" },
-  { icon: "🔮", label: "Prognosis Discussion", query: "Based on everything in Cali's records, give me an honest prognosis discussion. What are the realistic scenarios?" },
+  { icon: "🔮", label: "Prognosis Discussion", query: "Based on everything in the records, give me an honest prognosis discussion. What are the realistic scenarios?" },
 ];
 
 export const RESEARCH_TOPICS: ResearchTopic[] = [
@@ -119,7 +119,7 @@ export const FULL_RESEARCH_QUERY = `Run a comprehensive scan across Reddit (r/do
 6. Feeding tube experiences for dogs with liver disease
 7. Trazodone + gabapentin for anxiety in senior dogs with organ disease
 8. Novel appetite approaches beyond Entyce/mirtazapine
-For each finding: source, summary, relevance to Cali, actionable takeaway. Be specific and practical.`;
+For each finding: source, summary, relevance to this patient, actionable takeaway. Be specific and practical.`;
 
 export const API_MODEL = "claude-sonnet-4-20250514";
 export const MAX_TOKENS = 4096;
