@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { streamResearch } from "../utils/api";
@@ -8,17 +8,16 @@ import type { ResearchResult } from "../types";
 import { TypingIndicator } from "./TypingIndicator";
 
 const CATEGORIES = [
-  { id: "all", label: "All Topics" },
-  { id: "liver", label: "Liver Disease" },
-  { id: "appetite", label: "Appetite & Nutrition" },
-  { id: "treatment", label: "Treatments" },
-  { id: "behavior", label: "Behavior & Anxiety" },
-  { id: "research", label: "New Research" },
+  { id: "all", label: "All" },
+  { id: "liver", label: "Liver" },
+  { id: "appetite", label: "Appetite" },
+  { id: "treatment", label: "Treatment" },
+  { id: "behavior", label: "Behavior" },
+  { id: "research", label: "Research" },
 ] as const;
 
 type CategoryId = (typeof CATEGORIES)[number]["id"];
 
-// Map each research topic to a category
 const TOPIC_CATEGORIES: Record<string, CategoryId[]> = {
   "Hepatic Encephalopathy": ["liver", "treatment"],
   "Not Eating + Liver Disease": ["liver", "appetite"],
@@ -31,14 +30,14 @@ const TOPIC_CATEGORIES: Record<string, CategoryId[]> = {
 };
 
 const SUGGESTED_SEARCHES = [
-  "What are the best liver-support diets for dogs with cirrhosis?",
-  "How do owners manage hepatic encephalopathy at home?",
-  "What are signs a dog with liver disease is in pain?",
-  "Mirtazapine vs Entyce for appetite in liver disease dogs",
+  "Best liver-support diets for dogs with cirrhosis",
+  "Managing hepatic encephalopathy at home",
+  "Signs of pain in dogs with liver disease",
+  "Mirtazapine vs Entyce for appetite stimulation",
   "SAMe and milk thistle dosing for canine liver disease",
-  "When to consider euthanasia with end-stage liver disease",
-  "Latest veterinary research on reversing liver fibrosis in dogs",
-  "Dogs that recovered from severe liver enzyme elevation — stories",
+  "Quality of life assessment for end-stage liver disease",
+  "Reversing liver fibrosis — latest veterinary research",
+  "Dogs that recovered from severe liver enzyme elevation",
 ];
 
 export function ResearchTab() {
@@ -54,10 +53,6 @@ export function ResearchTab() {
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
-
-  const scrollToResults = useCallback(() => {
-    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-  }, []);
 
   async function runResearch(label: string, query: string, icon: string) {
     if (loading) return;
@@ -84,10 +79,7 @@ export function ResearchTab() {
         hour: "numeric",
         minute: "2-digit",
       });
-      setResults((prev) => [
-        { icon, label, content, timestamp: ts },
-        ...prev,
-      ]);
+      setResults((prev) => [{ icon, label, content, timestamp: ts }, ...prev]);
       setExpandedIdx(0);
     } catch (e) {
       if ((e as Error).name !== "AbortError") {
@@ -99,7 +91,7 @@ export function ResearchTab() {
         });
         setResults((prev) => [
           {
-            icon: "❌",
+            icon: "!",
             label,
             content: content || `Error: ${(e as Error).message}`,
             timestamp: ts,
@@ -117,7 +109,7 @@ export function ResearchTab() {
 
   function handleCustomSearch(query: string) {
     if (!query.trim()) return;
-    runResearch("Custom Search", query.trim(), "🔎");
+    runResearch("Custom Search", query.trim(), "search");
     setCustomQuery("");
   }
 
@@ -125,7 +117,6 @@ export function ResearchTab() {
     abortRef.current?.abort();
   }
 
-  // Filter topics by selected category
   const filteredTopics =
     activeCategory === "all"
       ? RESEARCH_TOPICS
@@ -133,7 +124,6 @@ export function ResearchTab() {
           TOPIC_CATEGORIES[t.label]?.includes(activeCategory),
         );
 
-  // Filter results by selected category
   const filteredResults =
     activeCategory === "all"
       ? results
@@ -144,69 +134,73 @@ export function ResearchTab() {
 
   return (
     <div className="flex-1 overflow-y-auto">
-      {/* Search bar */}
-      <div className="px-6 pt-5 pb-3">
-        <div className="flex gap-2.5 items-center bg-white rounded-2xl border border-[#E8E0D6] pl-4.5 pr-1.5 py-1.5 shadow-sm focus-within:border-[#8B7355] transition-colors">
-          <span className="text-[#A0937E] text-sm">🔍</span>
-          <input
-            value={customQuery}
-            onChange={(e) => setCustomQuery(e.target.value)}
-            onKeyDown={(e) =>
-              e.key === "Enter" && handleCustomSearch(customQuery)
-            }
-            placeholder="Search veterinary topics..."
-            disabled={loading}
-            className="flex-1 border-none outline-none text-sm font-sans bg-transparent text-[#2C1810] placeholder:text-[#A0937E] disabled:opacity-50"
-          />
-          {loading ? (
-            <button
-              onClick={stopResearch}
-              className="shrink-0 px-3 h-8 rounded-xl bg-red-50 text-red-500 border-none text-xs font-semibold cursor-pointer hover:bg-red-100 transition-colors"
-            >
-              Stop
-            </button>
-          ) : (
-            <button
-              onClick={() => handleCustomSearch(customQuery)}
-              disabled={!customQuery.trim()}
-              className="shrink-0 px-3 h-8 rounded-xl border-none text-white text-xs font-semibold transition-colors cursor-pointer disabled:cursor-default disabled:bg-[#E8E0D6] bg-[#3D2B1F] hover:bg-[#2C1810]"
-            >
-              Search
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Category pills */}
-      <div className="px-6 pb-3 flex gap-1.5 overflow-x-auto scrollbar-hide">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => setActiveCategory(cat.id)}
-            className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all border ${
-              activeCategory === cat.id
-                ? "bg-[#3D2B1F] text-white border-[#3D2B1F]"
-                : "bg-white text-[#8B7355] border-[#E8E0D6] hover:border-[#8B7355]"
-            }`}
-          >
-            {cat.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="px-6 pb-5">
-        {/* Suggested searches */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6">
+        {/* Search bar */}
         <div className="mb-5">
-          <div className="text-[11px] font-bold text-[#8B7355] tracking-wider uppercase mb-2.5">
-            Suggested Searches
+          <div className="flex items-center bg-white rounded-xl border border-gray-200 px-4 py-3 shadow-sm focus-within:border-blue-300 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+            <svg className="w-5 h-5 text-gray-400 shrink-0 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+            <input
+              value={customQuery}
+              onChange={(e) => setCustomQuery(e.target.value)}
+              onKeyDown={(e) =>
+                e.key === "Enter" && handleCustomSearch(customQuery)
+              }
+              placeholder="Search veterinary topics..."
+              disabled={loading}
+              className="flex-1 border-none outline-none text-[15px] bg-transparent text-gray-900 placeholder:text-gray-400 disabled:opacity-50"
+            />
+            {loading ? (
+              <button
+                onClick={stopResearch}
+                className="shrink-0 px-3 py-1.5 rounded-lg bg-gray-100 text-gray-500 text-xs font-medium hover:bg-gray-200 transition-colors"
+              >
+                Stop
+              </button>
+            ) : (
+              <button
+                onClick={() => handleCustomSearch(customQuery)}
+                disabled={!customQuery.trim()}
+                className="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all disabled:opacity-30 bg-blue-500 text-white hover:bg-blue-600"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Category pills */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide mb-5">
+          {CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id)}
+              className={`shrink-0 px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-all ${
+                activeCategory === cat.id
+                  ? "bg-gray-900 text-white"
+                  : "bg-white text-gray-600 border border-gray-200 hover:border-gray-300 hover:text-gray-800"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Suggested searches */}
+        <div className="mb-6">
+          <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            Suggested
           </div>
           <div className="flex flex-wrap gap-1.5">
             {SUGGESTED_SEARCHES.map((s, i) => (
               <button
                 key={i}
-                onClick={() => runResearch("Custom Search", s, "🔎")}
+                onClick={() => runResearch("Custom Search", s, "search")}
                 disabled={loading}
-                className="px-3 py-1.5 rounded-full bg-[#F5F0EB] text-[11px] font-medium text-[#5C4A3A] hover:bg-[#E8E0D6] transition-colors border-none cursor-pointer disabled:opacity-50 disabled:cursor-wait"
+                className="px-3 py-1.5 rounded-lg bg-white border border-gray-200 text-[12px] text-gray-600 hover:border-gray-300 hover:text-gray-800 transition-all disabled:opacity-40 disabled:cursor-wait"
               >
                 {s}
               </button>
@@ -214,32 +208,40 @@ export function ResearchTab() {
           </div>
         </div>
 
-        {/* Full scan button */}
+        {/* Full scan */}
         <button
           onClick={() =>
-            runResearch("Full Research Scan", FULL_RESEARCH_QUERY, "🔬")
+            runResearch("Full Research Scan", FULL_RESEARCH_QUERY, "scan")
           }
           disabled={loading}
-          className={`w-full py-4 px-5 rounded-2xl border-2 font-bold text-sm cursor-pointer transition-all flex items-center justify-center gap-2.5 mb-5 ${
+          className={`w-full py-3.5 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 mb-6 ${
             loading && activeLabel === "Full Research Scan"
-              ? "bg-[#F5F0EB] text-[#8B7355] border-[#E8E0D6]"
-              : "bg-[#3D2B1F] text-white border-[#3D2B1F] hover:bg-[#2C1810] disabled:opacity-60 disabled:cursor-wait"
+              ? "bg-gray-100 text-gray-500 border border-gray-200"
+              : "bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-50 disabled:cursor-wait"
           }`}
         >
           {loading && activeLabel === "Full Research Scan" ? (
             <>
-              <span className="animate-pulse">🔬</span>
-              Scanning Reddit, forums & research...
+              <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              Scanning sources...
             </>
           ) : (
-            <>🔬 Run Full Research Scan</>
+            <>
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+              </svg>
+              Run Full Research Scan
+            </>
           )}
         </button>
 
         {/* Topic cards */}
         <div className="mb-6">
-          <div className="text-[11px] font-bold text-[#8B7355] tracking-wider uppercase mb-2.5">
-            Research by Topic
+          <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            Topics
           </div>
           <div className="grid grid-cols-2 gap-2">
             {filteredTopics.map((rt, i) => (
@@ -247,34 +249,30 @@ export function ResearchTab() {
                 key={i}
                 onClick={() => runResearch(rt.label, rt.query, rt.icon)}
                 disabled={loading}
-                className={`p-3.5 rounded-xl border text-left transition-all flex gap-3 items-start w-full group ${
+                className={`p-3.5 rounded-xl border text-left transition-all flex gap-3 items-center w-full group ${
                   loading && activeLabel === rt.label
-                    ? "bg-[#F5F0EB] border-[#8B7355]"
-                    : "bg-white border-[#E8E0D6] hover:border-[#8B7355] hover:-translate-y-0.5 hover:shadow-sm disabled:opacity-50 disabled:cursor-wait"
+                    ? "bg-blue-50 border-blue-200"
+                    : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-sm disabled:opacity-40 disabled:cursor-wait"
                 }`}
               >
-                <span className="text-xl shrink-0 mt-0.5">
-                  {loading && activeLabel === rt.label ? (
-                    <span className="animate-pulse">{rt.icon}</span>
-                  ) : (
-                    rt.icon
-                  )}
+                <span className="text-lg shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+                  {rt.icon}
                 </span>
-                <div>
-                  <div className="text-[13px] font-semibold text-[#2C1810] mb-0.5 group-hover:text-[#3D2B1F]">
+                <div className="min-w-0">
+                  <div className="text-[13px] font-medium text-gray-800 truncate">
                     {rt.label}
                   </div>
-                  <div className="text-[11px] text-[#8B7355] leading-snug">
+                  <div className="text-[11px] text-gray-400">
                     {loading && activeLabel === rt.label
                       ? "Searching..."
-                      : "Reddit, forums & research"}
+                      : "Forums & research"}
                   </div>
                 </div>
               </button>
             ))}
           </div>
           {filteredTopics.length === 0 && (
-            <p className="text-center text-xs text-[#A0937E] py-6">
+            <p className="text-center text-sm text-gray-400 py-8">
               No topics in this category.
             </p>
           )}
@@ -284,16 +282,18 @@ export function ResearchTab() {
         {loading && streamContent && (
           <div
             ref={resultsRef}
-            className="p-5 rounded-2xl bg-white border border-[#8B7355] mb-4 shadow-sm animate-fade-up"
+            className="bg-white rounded-xl border border-blue-200 p-5 mb-4 shadow-sm animate-fade-up"
           >
             <div className="flex items-center gap-2 mb-3">
-              <span className="animate-pulse">🔍</span>
-              <span className="text-sm font-bold text-[#2C1810]">
+              <svg className="w-4 h-4 text-blue-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+              <span className="text-sm font-semibold text-gray-900">
                 {activeLabel}
               </span>
-              <TypingIndicator />
             </div>
-            <div className="prose prose-sm prose-stone max-w-none font-serif">
+            <div className="prose prose-sm prose-gray max-w-none">
               <ReactMarkdown remarkPlugins={[remarkGfm]}>
                 {streamContent}
               </ReactMarkdown>
@@ -302,10 +302,13 @@ export function ResearchTab() {
         )}
 
         {loading && !streamContent && activeLabel && (
-          <div className="p-4 rounded-xl bg-[#F5F0EB] border border-[#E8E0D6] mb-4 flex items-center gap-3">
-            <TypingIndicator />
-            <span className="text-[13px] text-[#8B7355] font-medium">
-              Researching {activeLabel}...
+          <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 flex items-center gap-3">
+            <svg className="w-4 h-4 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+            </svg>
+            <span className="text-sm text-gray-500">
+              Searching for {activeLabel}...
             </span>
           </div>
         )}
@@ -314,7 +317,7 @@ export function ResearchTab() {
         {filteredResults.length > 0 && (
           <div>
             <div className="flex items-center justify-between mb-3">
-              <div className="text-[11px] font-bold text-[#8B7355] tracking-wider uppercase">
+              <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
                 Results ({filteredResults.length})
               </div>
               <button
@@ -322,67 +325,81 @@ export function ResearchTab() {
                   setResults([]);
                   setExpandedIdx(null);
                 }}
-                className="text-[11px] text-[#A0937E] border-none bg-transparent cursor-pointer font-medium hover:text-[#8B7355] transition-colors"
+                className="text-[12px] text-gray-400 hover:text-gray-600 transition-colors"
               >
-                Clear All
+                Clear all
               </button>
             </div>
-            {filteredResults.map((r, i) => {
-              const isExpanded = expandedIdx === i;
-              const preview =
-                r.content.length > 200
-                  ? r.content.slice(0, 200) + "..."
-                  : r.content;
+            <div className="space-y-3">
+              {filteredResults.map((r, i) => {
+                const isExpanded = expandedIdx === i;
 
-              return (
-                <div
-                  key={`${r.label}-${r.timestamp}-${i}`}
-                  className="rounded-2xl bg-white border border-[#E8E0D6] mb-3 shadow-sm overflow-hidden transition-all hover:shadow-md cursor-pointer"
-                  onClick={() => setExpandedIdx(isExpanded ? null : i)}
-                >
-                  {/* Card header */}
-                  <div className="px-5 py-3.5 flex items-center gap-2.5">
-                    <span className="text-base">{r.icon}</span>
-                    <span className="text-sm font-bold text-[#2C1810] flex-1">
-                      {r.label}
-                    </span>
-                    <span className="text-[10px] text-[#A0937E] font-medium shrink-0">
-                      {r.timestamp}
-                    </span>
-                    <span
-                      className={`text-[#A0937E] text-xs transition-transform ${isExpanded ? "rotate-180" : ""}`}
-                    >
-                      ▼
-                    </span>
-                  </div>
-
-                  {/* Preview or full content */}
+                return (
                   <div
-                    className={`px-5 pb-4 ${isExpanded ? "" : "line-clamp-3"}`}
+                    key={`${r.label}-${r.timestamp}-${i}`}
+                    className="bg-white rounded-xl border border-gray-200 overflow-hidden transition-all hover:shadow-sm cursor-pointer"
+                    onClick={() => setExpandedIdx(isExpanded ? null : i)}
                   >
-                    <div className="prose prose-sm prose-stone max-w-none font-serif prose-headings:font-sans prose-headings:text-[#2C1810]">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {isExpanded ? r.content : preview}
-                      </ReactMarkdown>
-                    </div>
-                  </div>
-
-                  {!isExpanded && r.content.length > 200 && (
-                    <div className="px-5 pb-3">
-                      <span className="text-[11px] text-[#8B7355] font-medium">
-                        Click to expand
+                    <div className="px-5 py-3.5 flex items-center gap-3">
+                      <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center text-sm shrink-0">
+                        {r.icon === "search" || r.icon === "scan" ? (
+                          <svg className="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                          </svg>
+                        ) : r.icon === "!" ? (
+                          <svg className="w-3.5 h-3.5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+                          </svg>
+                        ) : (
+                          <span className="text-xs">{r.icon}</span>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-gray-900 truncate">
+                          {r.label}
+                        </div>
+                      </div>
+                      <span className="text-[11px] text-gray-400 shrink-0">
+                        {r.timestamp}
                       </span>
+                      <svg
+                        className={`w-4 h-4 text-gray-400 transition-transform shrink-0 ${isExpanded ? "rotate-180" : ""}`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                      </svg>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+
+                    {isExpanded && (
+                      <div className="px-5 pb-5 border-t border-gray-100 pt-4">
+                        <div className="prose prose-sm prose-gray max-w-none prose-headings:font-semibold">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {r.content}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    )}
+
+                    {!isExpanded && (
+                      <div className="px-5 pb-3">
+                        <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed">
+                          {r.content.slice(0, 150)}...
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
         {filteredResults.length === 0 && !loading && (
-          <div className="text-center py-10 text-[#A0937E] text-sm">
-            No research results yet. Run a scan, pick a topic, or search above.
+          <div className="text-center py-12 text-gray-400 text-sm">
+            No results yet. Search or pick a topic above.
           </div>
         )}
       </div>
