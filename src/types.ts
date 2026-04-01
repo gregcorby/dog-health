@@ -20,6 +20,7 @@ export interface ResearchResult {
   label: string;
   content: string;
   timestamp: string;
+  category?: string;
 }
 
 export type Tab = "chat" | "research";

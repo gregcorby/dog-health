@@ -121,5 +121,14 @@ export const FULL_RESEARCH_QUERY = `Run a comprehensive scan across Reddit (r/do
 8. Novel appetite approaches beyond Entyce/mirtazapine
 For each finding: source, summary, relevance to this patient, actionable takeaway. Be specific and practical.`;
 
+// Auto-load feed queries — run on first visit to populate the Discover feed
+export const AUTO_LOAD_QUERIES = [
+  { icon: "🧠", label: "Hepatic Encephalopathy", category: "liver", query: "Search for the latest owner experiences and veterinary information about hepatic encephalopathy in dogs. What symptoms do owners notice? What treatments (lactulose, rifaximin, diet changes) have worked? Focus on practical, real-world experiences from 2024-2026." },
+  { icon: "🍽️", label: "Appetite & Nutrition", category: "appetite", query: "Search for what works when dogs with liver disease stop eating. Include unconventional approaches, food aversion strategies, appetite stimulants beyond Entyce/mirtazapine, and creative feeding tricks from dog owners dealing with similar situations." },
+  { icon: "💊", label: "Treatment Updates", category: "treatment", query: "Search for the latest treatments and medications for canine chronic hepatitis and liver cirrhosis. Include new drugs, protocols, supplements (SAMe, milk thistle, ursodiol), and any clinical trials or new research from 2024-2026." },
+  { icon: "🐕", label: "Living with Liver Disease", category: "behavior", query: "Search for owner experiences managing daily life with a dog that has chronic liver disease. How do they handle anxiety, behavioral changes, quality of life assessment, and when to know it's time? Focus on senior dogs." },
+  { icon: "🔬", label: "Research & Breakthroughs", category: "research", query: "Search for the newest veterinary research on canine liver disease — fibrosis reversal, stem cell therapy, copper-associated hepatopathy genetics, new diagnostic tools, and any breakthroughs from 2025-2026." },
+];
+
 export const API_MODEL = "claude-sonnet-4-20250514";
 export const MAX_TOKENS = 4096;

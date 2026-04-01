@@ -4,7 +4,7 @@ export function TypingIndicator() {
       {[0, 1, 2].map((i) => (
         <div
           key={i}
-          className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce"
+          className="w-1.5 h-1.5 rounded-full bg-[#c4b5fd] animate-bounce"
           style={{ animationDelay: `${i * 150}ms` }}
         />
       ))}

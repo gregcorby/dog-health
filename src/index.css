@@ -33,6 +33,14 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #e0dce8;
   border-radius: 10px;
 }
+
+/* Tiimo-inspired color tokens */
+.bg-surface { background-color: #faf9fc; }
+.bg-card { background-color: #ffffff; }
+.bg-muted { background-color: #f3f0f7; }
+.text-primary { color: #1a1625; }
+.text-secondary { color: #6b6380; }
+.text-muted { color: #9d95ad; }
