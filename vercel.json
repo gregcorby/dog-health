@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/chat.ts": {
+      "maxDuration": 60
+    },
+    "api/research.ts": {
+      "maxDuration": 60
+    }
+  }
+}
