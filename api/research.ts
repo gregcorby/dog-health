@@ -1,63 +1,68 @@
-import type { VercelRequest, VercelResponse } from "@vercel/node";
 import Anthropic from "@anthropic-ai/sdk";
 import { RESEARCH_SYSTEM_PROMPT } from "./_prompts";
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export const config = {
+  maxDuration: 60,
+};
+
+export default async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return new Response(JSON.stringify({ error: "Method not allowed" }), { status: 405 });
   }
 
-  const { query } = req.body;
+  const { query } = await req.json();
   if (!query) {
-    return res.status(400).json({ error: "query required" });
+    return new Response(JSON.stringify({ error: "query required" }), { status: 400 });
   }
 
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache");
-  res.setHeader("Connection", "keep-alive");
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      try {
+        const anthropicStream = client.messages.stream({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 4096,
+          system: RESEARCH_SYSTEM_PROMPT,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          messages: [{ role: "user", content: query }],
+        });
 
-  try {
-    const stream = client.messages.stream({
-      model: "claude-sonnet-4-20250514",
-      max_tokens: 4096,
-      system: RESEARCH_SYSTEM_PROMPT,
-      tools: [{ type: "web_search_20250305", name: "web_search" }],
-      messages: [{ role: "user", content: query }],
-    });
+        anthropicStream.on("text", (text) => {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: "content_block_delta", delta: { text } })}\n\n`),
+          );
+        });
 
-    stream.on("text", (text) => {
-      res.write(
-        `data: ${JSON.stringify({ type: "content_block_delta", delta: { text } })}\n\n`,
-      );
-    });
+        anthropicStream.on("error", (error) => {
+          controller.enqueue(
+            encoder.encode(`data: ${JSON.stringify({ type: "error", error: { message: error.message } })}\n\n`),
+          );
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        });
 
-    stream.on("error", (error) => {
-      res.write(
-        `data: ${JSON.stringify({ type: "error", error: { message: error.message } })}\n\n`,
-      );
-      res.write("data: [DONE]\n\n");
-      res.end();
-    });
+        anthropicStream.on("end", () => {
+          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+          controller.close();
+        });
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : "Unknown error";
+        controller.enqueue(
+          encoder.encode(`data: ${JSON.stringify({ type: "error", error: { message: msg } })}\n\n`),
+        );
+        controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        controller.close();
+      }
+    },
+  });
 
-    stream.on("end", () => {
-      res.write("data: [DONE]\n\n");
-      res.end();
-    });
-
-    req.on("close", () => {
-      stream.abort();
-    });
-  } catch (error) {
-    const msg = error instanceof Error ? error.message : "Unknown error";
-    if (!res.headersSent) {
-      return res.status(500).json({ error: msg });
-    }
-    res.write(
-      `data: ${JSON.stringify({ type: "error", error: { message: msg } })}\n\n`,
-    );
-    res.write("data: [DONE]\n\n");
-    res.end();
-  }
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+    },
+  });
 }
