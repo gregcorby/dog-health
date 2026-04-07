@@ -1,4 +1,10 @@
 {
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/api/chat", "destination": "/api/chat" },
+    { "source": "/api/research", "destination": "/api/research" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ],
   "functions": {
     "api/chat.ts": {
       "maxDuration": 60
